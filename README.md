@@ -1,95 +1,107 @@
-# Riot Games Leaderboard app (Cloud Run)
+# Riot Games Leaderboard App
 
-Daniel Gregorio-Torres
+A containerized web application that provides real-time competitive leaderboards for popular Riot Games titles. Built with **Flask** and deployed via **Google Cloud Run**, this project demonstrates seamless integration with the **Riot Games API** and robust cloud deployment workflows.
 
-11/22 - 12/22
+## 🚀 Key Features
 
-Personal Project
+- **Live Data Integration**: Fetches real-time competitive data directly from the Riot Games API.
+- **Multi-Game Support**:
+  - **Valorant**: Displays the top 100 players with rank, gamertag, rank rating (RR), and total wins.
+  - **League of Legends**: Shows Challenger-tier players with rank, summoner name, league points (LP), and wins.
+- **Cloud-Native Architecture**: Fully containerized using Docker and optimized for serverless deployment on Google Cloud Run.
+- **Responsive Web Interface**: Built with Bootstrap for a clean, accessible viewing experience across devices.
 
-## Description
+## 🛠️ Tech Stack
 
-RUNNING APP USING GOOGLE CLOUD RUN
+- **Backend**: Python, Flask
+- **API**: Riot Games API (Requests)
+- **Containerization**: Docker
+- **Cloud Platform**: Google Cloud Platform (Cloud Build, Cloud Run, Artifact Registry)
+- **Frontend**: Bootstrap 5, Jinja2 Templates
+- **Testing**: Pytest
 
-The purpose of this small web app is to demonstrate some of the information that can be obtained using the https://developer.riotgames.com/ Free API. This application displays competitive play information for 2 games developed by Riot Games. One game includes Valorant, where the competitive/ ranked leaderboard is displayed with the rank, gamertag, rank rating, and total wins for the top 100 players is displayed. The other game is League of Legends, where the rank, gamertag, league points, and total wins for the top challenger(best rank) players is displayed.
+## 🏗️ Architecture Overview
 
-## Navigation
+The application follows a modern serverless pattern:
+1.  **Flask** handles routing and API orchestration.
+2.  **Docker** packages the application and its dependencies into a portable image.
+3.  **Google Cloud Build** automates the image construction.
+4.  **Google Cloud Run** provides a scalable, serverless environment to host the container.
 
-- [Setup](#setup)
-- [Deployment](#deployment)
-- [Tests](#tests)
-- [Previews](#previews)
+## 📋 Prerequisites
 
-## Setup
+- Python 3.9+
+- Docker (optional for local development)
+- A [Riot Games Developer Account](https://developer.riotgames.com/) and API Key.
+- A Google Cloud Platform account with a project enabled.
 
-1. Create a service account in google cloud and give it the `Cloud Datastore User` role
+## ⚙️ Local Setup
 
-1. Open google cloud shell and go to the directory with your source code
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/daniel1wnl/riotLeaderboards-cloudRun.git
+   cd riotLeaderboards-cloudRun
+   ```
 
-1. Run the following command
+2. **Create and activate a virtual environment:**
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
 
-```shell
-gcloud builds submit --timeout=900 --tag gcr.io/${GOOGLE_CLOUD_PROJECT}/<imgName>
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Set environment variables:**
+   ```bash
+   export API_KEY=your_riot_api_key
+   export ACT_ID=your_valorant_act_id
+   ```
+
+5. **Run the app:**
+   ```bash
+   python3 app.py
+   ```
+
+## ☁️ Deployment to Google Cloud Run
+
+### 1. Build the Container Image
+Using Google Cloud Build to create and store your image in the Container Registry:
+```bash
+gcloud builds submit --tag gcr.io/${GOOGLE_CLOUD_PROJECT}/riot-leaderboard --timeout=900
 ```
 
-- This uploads the Dockerfile and application source files to build a container image
-- image is stored in the container registry using the image name entered for `<imgName>` above
-- There is a timeout value since this might take over the 10 minute default setting
-
-## Deployment
-
-1. Run the following command
-
-```shell
-gcloud run deploy <projectName> \
---image gcr.io/${GOOGLE_CLOUD_PROJECT}/<imgName> \
---service-account <serviceAccount>@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com --set-env-vars API_KEY=<YOUR API KEY>, ACT_ID=<VALORANT ACT ID YOU WANT>
+### 2. Deploy to Cloud Run
+Deploy the image to a serverless service, injecting the required API credentials as environment variables:
+```bash
+gcloud run deploy riot-leaderboard \
+  --image gcr.io/${GOOGLE_CLOUD_PROJECT}/riot-leaderboard \
+  --service-account [YOUR_SERVICE_ACCOUNT_NAME]@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com \
+  --set-env-vars API_KEY=[YOUR_API_KEY],ACT_ID=[VALORANT_ACT_ID] \
+  --allow-unauthenticated
 ```
 
-- First line calls cloud run to deploy a container named <projectName>
-- Second line references the image we created previously
-- Third sets the service account to the account we made with ‘Cloud Datastore User’ role
-- The last flag sets environment variables named API key, and ACT_ID
+*Note: You can find the current Valorant Act ID via the [Riot API status endpoint](https://na.api.riotgames.com/val/status/v1/platform-data).*
 
-For the ACT_ID you can use the following route to get the act id you would like to get information from. https://na.api.riotgames.com/val/status/v1/platform-data?api_key=<Your_API_KEY>
+## 🧪 Testing
 
-2. Specify a region
-
-- Enter the region to host your app
-
-3. Allow Unauthenticated Invocations
-
-- Type in `y`
-
-4. Your app will be hosted on the `Service URL` provided
-
-## Tests
-
-The application comes with the following tests:
-
-1. Test for the home page route ('/')
-1. Test for the 'valLeaders' route ('/valLeaders')
-1. Test for the 'lolLeaders' route ('/lolLeaders')
-
-In order to run the test the enter the following command:
-
-```shell
+The project uses `pytest` for endpoint validation. To run the tests:
+```bash
 pytest
 ```
 
-## Previews
+## 📸 Previews
 
-###### Valorant Leaderboard From App
+### Valorant Leaderboard
+![Valorant App Preview](imgs/appVal.png)
 
-![appVal](imgs/appVal.png)
+### League of Legends Leaderboard
+![League App Preview](imgs/appLoL.png)
 
-###### Valorant Leaderboard From [op.gg](https://valorant.op.gg/leaderboards)
+## 👤 Author
 
-![appVal](imgs/opggVal.png)
-
-###### Valorant Leaderboard From App
-
-![appVal](imgs/appLoL.png)
-
-###### Valorant Leaderboard From [op.gg](https://www.op.gg/leaderboards/tier)
-
-![appVal](imgs/opggLoL.png)
+**Daniel Gregorio-Torres**
+- [GitHub](https://github.com/daniel1wnl)
+- [LinkedIn](https://www.linkedin.com/in/danielgregoriotorres/)
