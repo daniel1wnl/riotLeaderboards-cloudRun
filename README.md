@@ -2,6 +2,8 @@
 
 A containerized web application that provides real-time competitive leaderboards for popular Riot Games titles. Built with **Flask** and deployed via **Google Cloud Run**, this project demonstrates seamless integration with the **Riot Games API** and robust cloud deployment workflows.
 
+Developed as the final project for **CS 430P/530: Internet, Web & Cloud Systems**.
+
 ## 🚀 Key Features
 
 - **Live Data Integration**: Fetches real-time competitive data directly from the Riot Games API.
